@@ -36,19 +36,24 @@ fn main() -> std::io::Result<()> {
 / Acrônimo
 pub fn abbreviate(phrase: &str) -> String {
     let mut acronym = String::new();
+    let mut previous_lowercase = false;
+    let mut previous_separator = true;
 
-    for word in phrase.split(|ch: char| !ch.is_alphabetic() && ch != '\'') {
-        let mut last_lowercase = false;
-
-        for (index, letter) in word.chars().enumerate() {
-            if index == 0 && letter.is_alphabetic() {
-                acronym.push(letter.to_ascii_uppercase());
-            } else if last_lowercase && letter.is_uppercase() {
-                acronym.push(letter);
+    for ch in phrase.chars() {
+        if !ch.is_alphabetic() {
+            if ch != '\'' {
+                previous_separator = true;
             }
-
-            last_lowercase = letter.is_lowercase();
+            previous_lowercase = false;
+            continue;
         }
+
+        if previous_separator || (previous_lowercase && ch.is_uppercase()) {
+            acronym.push(ch.to_ascii_uppercase());
+        }
+
+        previous_separator = false;
+        previous_lowercase = ch.is_lowercase();
     }
 
     acronym
